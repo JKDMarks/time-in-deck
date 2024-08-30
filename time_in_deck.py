@@ -17,7 +17,7 @@ def convert_timestring(timestring):
         return datetime.datetime.strptime(timestring, f"%Y-%m-%dT%H:%M:%SZ")
 
 
-def run(deck_history, filename):
+def run(deck_history, filename: str):
     deck_history: list[Card] = list(reversed(deck_history))
     timedelta_dict: dict[str, CardTime] = dict()
     for card in deck_history:
@@ -67,7 +67,7 @@ def run(deck_history, filename):
         )
     }
 
-    new_filename = filename.replace(".json", " history.json")
+    new_filename = filename.replace("/outputs/", "/outputs/HISTORY ")
     with open(new_filename, "w") as f:
         json.dump(timedelta_dict, f, indent=4)
 

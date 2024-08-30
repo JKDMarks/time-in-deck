@@ -1,9 +1,10 @@
-import sys, os, requests, json
+import sys, os, requests, json, re
 from urllib.parse import urlparse, urlunparse, parse_qs, urlencode, ParseResult
 from typing import TypedDict
 
 
 OUTPUT_DIRNAME = "outputs"
+ILLEGAL_CHARACTERS_RGX = r"[\\/:*?\"<>|]"
 
 
 class Card(TypedDict):
@@ -44,9 +45,10 @@ def format_data_entry(entry) -> Card:
 
 
 def add_page_to_list(output_list: list[Card], data):
-    if len(set([x["cardType"] for x in data["data"]])) > 1:
-        print("***card not normal")
-        breakpoint()
+    card_types = set([x["cardType"] for x in data["data"]])
+    if len(card_types) > 1:
+        print("***card not normal, please review data")
+        print(card_types)
 
     for entry in data["data"]:
         output_list.append(format_data_entry(entry))
@@ -65,6 +67,7 @@ def run(deck_id):
     deck_name = requests.get(
         f"https://api2.moxfield.com/v3/decks/all/{deck_id}"
     ).json()["name"]
+    deck_name = re.sub(ILLEGAL_CHARACTERS_RGX, "", deck_name)
     filename = f"./outputs/{deck_name}.json"
     with open(filename, "w") as f:
         json.dump(output_list, f, indent=4)
